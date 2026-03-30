@@ -1,13 +1,25 @@
 import { z } from "zod/v4";
 
 export const materialSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  sku: z.string().min(3, "SKU must be at least 3 characters"),
-  category: z.enum(["Raw Material", "Packaging", "Finished Good", "Component", "Consumable"]),
-  stock: z.coerce.number().min(0, "Stock cannot be negative"),
-  min_stock: z.coerce.number().min(0, "Min stock cannot be negative"),
-  unit: z.enum(["kg", "pcs", "liters", "meters", "boxes"]),
-  unit_price: z.coerce.number().positive("Price must be greater than 0"),
+  cust_name: z.string().min(1, "Customer Name is required"),
+  cust_contact: z.string().min(1, "Customer Contact is required"),
+  case_id: z.string().min(1, "Case ID is required"),
+  so_number: z.string().min(1, "SO Number is required"),
+  warranty: z.boolean().optional(),
+  issue: z.string().min(1, "Issue is required"),
+  product: z.string().min(1, "Product is required"),
+  model_name: z.string().min(1, "Model Name is required"),
+  part_number: z.string().min(1, "Part Number is required"),
+  serial_number: z.string().min(1, "Serial Number is required"),
+  qty: z.coerce.number().min(1, "Quantity must be at least 1"),
+  hp_part_in_date: z.string().nullable().optional(),
+  aging: z.coerce.number().nullable().optional(),
+  out_date: z.string().nullable().optional(),
+  collector: z.string().optional(),
+  in_date: z.string().nullable().optional(),
+  receiver: z.string().optional(),
+  used_part: z.boolean().optional(),
+  remarks: z.string().optional(),
 });
 
 export type MaterialFormData = z.infer<typeof materialSchema>;
@@ -33,7 +45,7 @@ export const transactionSchema = z.object({
 export type TransactionFormData = z.infer<typeof transactionSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  username: z.string().min(1, "Username is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

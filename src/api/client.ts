@@ -11,7 +11,7 @@ client.interceptors.request.use((config) => {
       const parsed = JSON.parse(raw);
       const token = parsed?.state?.token;
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Token ${token}`;
       }
     } catch {
       // ignore parse errors

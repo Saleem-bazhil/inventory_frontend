@@ -8,52 +8,58 @@ import { MaterialsTable } from "@/components/materials/MaterialsTable";
 import { MaterialFormDialog } from "@/components/materials/MaterialFormDialog";
 import { DeleteConfirmDialog } from "@/components/materials/DeleteConfirmDialog";
 import { useMaterials } from "@/hooks/useMaterials";
-import { useDebounce } from "@/hooks/useDebounce";
+import { createMaterial, updateMaterial, deleteMaterial } from "@/api/materials";
 import { toast } from "@/components/ui/use-toast";
 import type { Material } from "@/types";
 
 
 export default function Materials() {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
 
-  const debouncedSearch = useDebounce(search);
-  const { data, loading, error, pagination, refetch } = useMaterials({
-    search: debouncedSearch || undefined,
-    category: category !== "all" ? category : undefined,
-    sort_by: sortBy,
-    sort_order: sortOrder,
-    page,
-    per_page: 8,
-  });
+  const { data, loading, error, pagination, refetch } = useMaterials();
 
   const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(field);
-      setSortOrder("asc");
+    console.log("Sorting temporarily disabled. Would sort by:", field);
+  };
+
+  const handleSubmit = async (data: any) => {
+    try {
+      if (selectedMaterial) {
+        await updateMaterial(selectedMaterial.id, data);
+        toast({ title: "Material updated successfully" });
+      } else {
+        await createMaterial(data);
+        toast({ title: "Material created successfully" });
+      }
+      setFormOpen(false);
+      setSelectedMaterial(null);
+      refetch();
+    } catch (err: any) {
+      toast({ 
+        title: "Error saving material", 
+        description: err.response?.data?.detail || "An unexpected error occurred", 
+        variant: "destructive" 
+      });
     }
   };
 
-  const handleSubmit = async () => {
-    toast({ title: selectedMaterial ? "Material updated successfully" : "Material created successfully" });
-    setFormOpen(false);
-    setSelectedMaterial(null);
-    refetch();
-  };
-
-  const handleDelete = () => {
-    toast({ title: "Material deleted successfully" });
-    setDeleteOpen(false);
-    setSelectedMaterial(null);
-    refetch();
+  const handleDelete = async () => {
+    if (!selectedMaterial) return;
+    try {
+      await deleteMaterial(selectedMaterial.id);
+      toast({ title: "Material deleted successfully" });
+      setDeleteOpen(false);
+      setSelectedMaterial(null);
+      refetch();
+    } catch (err: any) {
+      toast({ 
+        title: "Error deleting material", 
+        description: err.response?.data?.detail || "An unexpected error occurred", 
+        variant: "destructive" 
+      });
+    }
   };
 
   if (error) {
@@ -77,10 +83,10 @@ export default function Materials() {
       </div>
 
       <MaterialsToolbar
-        search={search}
-        onSearchChange={setSearch}
-        category={category}
-        onCategoryChange={setCategory}
+        search={""}
+        onSearchChange={() => {}}
+        category={"all"}
+        onCategoryChange={() => {}}
         onAdd={() => { setSelectedMaterial(null); setFormOpen(true); }}
       />
 
@@ -96,12 +102,10 @@ export default function Materials() {
           data={data}
           loading={loading}
           pagination={pagination}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
           onSort={handleSort}
           onEdit={(m) => { setSelectedMaterial(m); setFormOpen(true); }}
           onDelete={(m) => { setSelectedMaterial(m); setDeleteOpen(true); }}
-          onPageChange={setPage}
+          onPageChange={(p) => console.log("Pagination disabled natively. Page:", p)}
         />
       )}
 
@@ -114,7 +118,7 @@ export default function Materials() {
       <DeleteConfirmDialog
         open={deleteOpen}
         onOpenChange={(open) => { setDeleteOpen(open); if (!open) setSelectedMaterial(null); }}
-        title={`Delete ${selectedMaterial?.name}?`}
+        title={`Delete ${selectedMaterial?.part_number}?`}
         description="This action cannot be undone. This will permanently delete the material."
         onConfirm={handleDelete}
       />

@@ -1,10 +1,11 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import { AppLayout } from "./AppLayout";
+import { useAuthStore } from "@/store/authStore";
 
 export function ProtectedRoute() {
-  // TODO: re-enable auth check when backend is connected
-  // const { isAuthenticated } = useAuthStore();
-  // if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const { isAuthenticated } = useAuthStore();
+  
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
     <AppLayout>

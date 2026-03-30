@@ -1,14 +1,24 @@
 export interface Material {
-  id: string;
-  name: string;
-  category: "Raw Material" | "Packaging" | "Finished Good" | "Component" | "Consumable";
-  sku: string;
-  stock: number;
-  min_stock: number;
-  unit: "kg" | "pcs" | "liters" | "meters" | "boxes";
-  unit_price: number;
-  status: "normal" | "low" | "out";
-  last_updated: string;
+  id: number;
+  cust_name: string;
+  cust_contact: string;
+  case_id: string;
+  so_number: string;
+  warranty: boolean;
+  issue: string;
+  product: string;
+  model_name: string;
+  part_number: string;
+  serial_number: string;
+  qty: number;
+  hp_part_in_date: string | null;
+  aging: number | null;
+  out_date: string | null;
+  collector: string;
+  in_date: string | null;
+  receiver: string;
+  used_part: boolean;
+  remarks: string;
 }
 
 export interface Customer {
@@ -35,10 +45,9 @@ export interface Transaction {
 }
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  full_name: string;
-  role: "admin" | "staff";
+  username: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -83,9 +92,11 @@ export interface CategoryBreakdown {
 }
 
 export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  user: User;
+  token: string;
+  user_id: number;
+  username: string;
+  email: string;
+  message: string;
 }
 
 export interface MaterialQueryParams {

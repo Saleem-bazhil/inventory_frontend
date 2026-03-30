@@ -33,11 +33,11 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const res = await authApi.login(data.email, data.password);
-      storeLogin(res.access_token, res.user);
+      const res = await authApi.login(data.username, data.password);
+      storeLogin(res.token, { id: res.user_id, email: res.email, username: res.username });
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { detail?: string } } };
-      setError(axiosErr.response?.data?.detail || "Invalid email or password");
+      const axiosErr = err as { response?: { data?: { error?: string, detail?: string } } };
+      setError(axiosErr.response?.data?.error || axiosErr.response?.data?.detail || "Invalid username or password");
     } finally {
       setLoading(false);
     }
@@ -67,9 +67,9 @@ export default function Login() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label>Email</Label>
-              <Input type="email" {...register("email")} placeholder="you@example.com" />
-              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+              <Label>Username</Label>
+              <Input type="text" {...register("username")} placeholder="your_username" />
+              {errors.username && <p className="text-xs text-red-500">{errors.username.message}</p>}
             </div>
             <div className="space-y-2">
               <Label>Password</Label>

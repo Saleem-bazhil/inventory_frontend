@@ -4,15 +4,12 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatCurrency, getStatusColor, getStatusLabel } from "@/lib/utils";
 import type { Material, PaginationMeta } from "@/types";
 
 interface MaterialsTableProps {
   data: Material[];
   loading: boolean;
   pagination: PaginationMeta;
-  sortBy: string;
-  sortOrder: "asc" | "desc";
   onSort: (field: string) => void;
   onEdit: (material: Material) => void;
   onDelete: (material: Material) => void;
@@ -20,7 +17,7 @@ interface MaterialsTableProps {
 }
 
 export function MaterialsTable({
-  data, loading, pagination, sortBy, sortOrder, onSort, onEdit, onDelete, onPageChange,
+  data, loading, pagination, onSort, onEdit, onDelete, onPageChange,
 }: MaterialsTableProps) {
   if (loading) {
     return (
@@ -42,24 +39,20 @@ export function MaterialsTable({
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800/50">
               <TableHead>
-                <button onClick={() => onSort("name")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
-                  Name <ArrowUpDown className="w-3 h-3" />
+                <button onClick={() => onSort("part_number")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
+                  Part No <ArrowUpDown className="w-3 h-3" />
                 </button>
               </TableHead>
-              <TableHead>SKU</TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead>Product</TableHead>
+              <TableHead>Cust Name</TableHead>
+              <TableHead>SO Number</TableHead>
+              <TableHead>Case ID</TableHead>
+              <TableHead>Serial No</TableHead>
               <TableHead>
-                <button onClick={() => onSort("stock")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
-                  Stock <ArrowUpDown className="w-3 h-3" />
+                <button onClick={() => onSort("qty")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
+                  Qty <ArrowUpDown className="w-3 h-3" />
                 </button>
               </TableHead>
-              <TableHead>Min Stock</TableHead>
-              <TableHead>
-                <button onClick={() => onSort("unit_price")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
-                  Unit Price <ArrowUpDown className="w-3 h-3" />
-                </button>
-              </TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,20 +65,14 @@ export function MaterialsTable({
                 transition={{ delay: i * 0.05 }}
                 className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
               >
-                <TableCell className="font-medium">{m.name}</TableCell>
-                <TableCell className="text-slate-500">{m.sku}</TableCell>
+                <TableCell className="font-medium">{m.part_number}</TableCell>
+                <TableCell>{m.product}</TableCell>
+                <TableCell>{m.cust_name}</TableCell>
+                <TableCell>{m.so_number}</TableCell>
+                <TableCell>{m.case_id}</TableCell>
+                <TableCell>{m.serial_number}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{m.category}</Badge>
-                </TableCell>
-                <TableCell>
-                  {m.stock} {m.unit}
-                </TableCell>
-                <TableCell className="text-slate-500">{m.min_stock}</TableCell>
-                <TableCell>{formatCurrency(m.unit_price)}</TableCell>
-                <TableCell>
-                  <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", getStatusColor(m.status))}>
-                    {getStatusLabel(m.status)}
-                  </span>
+                  <Badge variant="secondary">{m.qty}</Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
