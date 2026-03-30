@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion, AnimatePresence } from "framer-motion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { transactionSchema, type TransactionFormData } from "@/lib/validations";
 import { mockMaterials, mockCustomers } from "@/lib/mock-data";
-import { Plus, ArrowDownLeft, ArrowUpRight, Calendar, Package, User } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Package, User, Calendar, FileText, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 interface TransactionFormDialogProps {
   open: boolean;
@@ -41,128 +41,138 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none bg-zinc-950 shadow-2xl">
-        <div className="bg-gradient-to-br from-zinc-900 to-black p-6">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">
-              New Transaction
-            </DialogTitle>
+      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none bg-slate-50 dark:bg-slate-950 shadow-2xl">
+        <div className="bg-white dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-800">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold tracking-tight">New Transaction</DialogTitle>
+            <DialogDescription>Add a new inflow or outflow record to your inventory.</DialogDescription>
           </DialogHeader>
+        </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            
-            {/* Custom Type Selector (Visual Segmented Control) */}
-            <div className="p-1 bg-zinc-800/50 rounded-xl flex gap-1 border border-white/5">
-              <button
-                type="button"
-                onClick={() => setValue("type", "in")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                  currentType === "in" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                <ArrowDownLeft size={16} /> Stock IN
-              </button>
-              <button
-                type="button"
-                onClick={() => setValue("type", "out")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                  currentType === "out" ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                <ArrowUpRight size={16} /> Stock OUT
-              </button>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+          {/* Type Toggle Style Select */}
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setValue("type", "in")}
+              className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
+                currentType === "in" 
+                ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm" 
+                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <ArrowUpRight className="w-4 h-4" /> Inflow
+            </button>
+            <button
+              type="button"
+              onClick={() => setValue("type", "out")}
+              className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
+                currentType === "out" 
+                ? "bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm" 
+                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <ArrowDownLeft className="w-4 h-4" /> Outflow
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Material Selection */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                <Package className="w-3 h-3" /> Material
+              </Label>
+              <Select value={watch("material_id")} onValueChange={(v) => setValue("material_id", v)}>
+                <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11">
+                  <SelectValue placeholder="Select material" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {mockMaterials.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      <div className="flex justify-between items-center w-full gap-8">
+                        <span>{m.name}</span>
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">
+                          Stock: {m.stock} {m.unit}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.material_id && <p className="text-[11px] text-red-500 font-medium pl-1">{errors.material_id.message}</p>}
             </div>
 
-            <div className="grid gap-4">
-              {/* Material Selection */}
-              <div className="space-y-2">
-                <Label className="text-zinc-400 flex items-center gap-2"><Package size={14}/> Material</Label>
-                <Select value={watch("material_id")} onValueChange={(v) => setValue("material_id", v)}>
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-11 focus:ring-emerald-500/50">
-                    <SelectValue placeholder="Select inventory item" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
-                    {mockMaterials.map((m) => (
-                      <SelectItem key={m.id} value={m.id} className="focus:bg-zinc-800">
-                        {m.name} <span className="ml-2 text-xs text-zinc-500">({m.stock} {m.unit})</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.material_id && <p className="text-[11px] text-rose-500 mt-1 ml-1">{errors.material_id.message}</p>}
-              </div>
+            {/* Customer Selection */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                <User className="w-3 h-3" /> Customer / Party
+              </Label>
+              <Select value={watch("customer_id")} onValueChange={(v) => setValue("customer_id", v)}>
+                <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11">
+                  <SelectValue placeholder="Select customer" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {mockCustomers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.customer_id && <p className="text-[11px] text-red-500 font-medium pl-1">{errors.customer_id.message}</p>}
+            </div>
 
-              {/* Customer Selection */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-zinc-400 flex items-center gap-2"><User size={14}/> Customer / Client</Label>
-                <Select value={watch("customer_id")} onValueChange={(v) => setValue("customer_id", v)}>
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-11">
-                    <SelectValue placeholder="Select profile" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
-                    {mockCustomers.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quantity</Label>
+                <Input 
+                  type="number" 
+                  {...register("quantity")} 
+                  className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11"
+                />
+                {errors.quantity && <p className="text-[11px] text-red-500 font-medium pl-1">{errors.quantity.message}</p>}
               </div>
-
-              {/* Grid for Quantity & Date */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-zinc-400 font-medium">Quantity</Label>
-                  <Input 
-                    type="number" 
-                    {...register("quantity", { valueAsNumber: true })} 
-                    className="bg-white/5 border-white/10 rounded-xl h-11 focus:border-emerald-500/50 transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-zinc-400 flex items-center gap-2"><Calendar size={14}/> Date</Label>
-                  <Input 
-                    type="date" 
-                    {...register("date")} 
-                    className="bg-white/5 border-white/10 rounded-xl h-11 [color-scheme:dark]"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <Calendar className="w-3 h-3" /> Date
+                </Label>
+                <Input 
+                  type="date" 
+                  {...register("date")} 
+                  className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11"
+                />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-zinc-400">Notes</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                <FileText className="w-3 h-3" /> Notes
+              </Label>
               <textarea
                 {...register("notes")}
                 rows={2}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"
-                placeholder="Any specific details..."
+                className="flex w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none resize-none"
+                placeholder="Add any internal remarks..."
               />
             </div>
+          </div>
 
-            <DialogFooter className="pt-4 flex gap-3">
-              <Button 
-                type="button" 
-                variant="ghost" 
-                onClick={() => onOpenChange(false)}
-                className="flex-1 hover:bg-white/5 rounded-xl text-zinc-400"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className={`flex-[2] rounded-xl font-bold transition-all active:scale-95 ${
-                    currentType === 'in' ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-rose-600 hover:bg-rose-500'
-                }`}
-              >
-                {loading ? "Processing..." : (
-                    <span className="flex items-center gap-2">
-                        <Plus size={18} /> Add Entry
-                    </span>
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </div>
+          <DialogFooter className="pt-2 gap-3">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={() => onOpenChange(false)}
+              className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="rounded-xl px-8 bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
+            >
+              {loading ? "Processing..." : "Create Transaction"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
