@@ -40,17 +40,17 @@ export function KPICard({ title, value, icon: Icon, change, color, index = 0 }: 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
-      <Card className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-            <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">{value}</p>
+      <Card className="p-4 sm:p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1 sm:space-y-2 min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 truncate">{title}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">{value}</p>
             {change && (
               <p className={cn("text-sm font-medium", c.text)}>{change}</p>
             )}
           </div>
-          <div className={cn("flex items-center justify-center w-12 h-12 rounded-xl", c.bg)}>
-            <Icon className={cn("w-6 h-6", c.text)} />
+          <div className={cn("flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex-shrink-0", c.bg)}>
+            <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", c.text)} />
           </div>
         </div>
       </Card>

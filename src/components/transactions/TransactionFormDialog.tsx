@@ -76,7 +76,7 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
             </Select>
             {errors.customer_id && <p className="text-xs text-red-500">{errors.customer_id.message}</p>}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Quantity</Label>
               <Input type="number" {...register("quantity")} />

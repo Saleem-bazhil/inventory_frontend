@@ -11,9 +11,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       <Sidebar />
-      <div className="md:ml-64 flex flex-col min-h-screen">
+      <div className="md:ml-64 flex flex-col min-h-screen transition-all duration-200">
         <Navbar />
-        <main className="flex-1 p-6 pb-20 md:pb-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 pb-24 md:pb-6 overflow-x-hidden">{children}</main>
       </div>
       <MobileNav />
     </div>

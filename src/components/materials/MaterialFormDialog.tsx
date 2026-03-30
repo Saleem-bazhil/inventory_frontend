@@ -56,7 +56,7 @@ export function MaterialFormDialog({ open, onOpenChange, material, onSubmit, loa
           <DialogTitle>{material ? "Edit Material" : "Add Material"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Name</Label>
               <Input {...register("name")} placeholder="Material name" />
@@ -68,7 +68,7 @@ export function MaterialFormDialog({ open, onOpenChange, material, onSubmit, loa
               {errors.sku && <p className="text-xs text-red-500">{errors.sku.message}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Category</Label>
               <Select value={watch("category")} onValueChange={(v) => setValue("category", v as MaterialFormData["category"])}>
@@ -98,7 +98,7 @@ export function MaterialFormDialog({ open, onOpenChange, material, onSubmit, loa
               {errors.unit && <p className="text-xs text-red-500">{errors.unit.message}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Stock</Label>
               <Input type="number" {...register("stock")} />
