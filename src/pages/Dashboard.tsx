@@ -55,14 +55,14 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dashboard</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome back. Here's what's happening today.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setMaterialDialogOpen(true)} className="gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => setMaterialDialogOpen(true)} className="gap-2 flex-1 sm:flex-initial text-xs sm:text-sm">
             <Plus className="w-4 h-4" />
-            Add Material
+            <span className="hidden xs:inline">Add</span> Material
           </Button>
-          <Button onClick={() => setTransactionDialogOpen(true)} className="gap-2">
+          <Button onClick={() => setTransactionDialogOpen(true)} className="gap-2 flex-1 sm:flex-initial text-xs sm:text-sm">
             <Plus className="w-4 h-4" />
-            New Transaction
+            <span className="hidden xs:inline">New</span> Transaction
           </Button>
         </div>
       </div>

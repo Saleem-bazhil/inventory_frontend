@@ -12,11 +12,11 @@ export function TopMaterialsChart({ data }: TopMaterialsChartProps) {
         <CardTitle>Most Used Materials</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[240px] sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-              <XAxis dataKey="name" className="text-xs" tick={{ fill: "#94A3B8" }} />
+              <XAxis dataKey="name" className="text-xs" tick={{ fill: "#94A3B8", fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={50} />
               <YAxis className="text-xs" tick={{ fill: "#94A3B8" }} />
               <Tooltip
                 contentStyle={{
