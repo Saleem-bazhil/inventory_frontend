@@ -1,0 +1,95 @@
+import { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Package, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { loginSchema, type LoginFormData } from "@/lib/validations";
+import { useAuthStore } from "@/store/authStore";
+import * as authApi from "@/api/auth";
+
+export default function Login() {
+  const { isAuthenticated, login: storeLogin } = useAuthStore();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  const onSubmit = async (data: LoginFormData) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await authApi.login(data.email, data.password);
+      storeLogin(res.access_token, res.user);
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { detail?: string } } };
+      setError(axiosErr.response?.data?.detail || "Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="w-full max-w-md p-8">
+          <div className="flex flex-col items-center mb-8">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white mb-4">
+              <Package className="w-6 h-6" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Sign in to your account</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Welcome back to InventoryPro</p>
+          </div>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input type="email" {...register("email")} placeholder="you@example.com" />
+              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label>Password</Label>
+              <Input type="password" {...register("password")} placeholder="••••••••" />
+              {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
+              Register
+            </Link>
+          </p>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}
