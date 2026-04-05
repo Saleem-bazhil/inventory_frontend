@@ -43,7 +43,7 @@ export default function Settings() {
             {/* User Info */}
             <div>
               <p className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                {user?.full_name || "User"}
+                {user?.full_name || user?.username || "User"}
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {user?.email || "user@example.com"}

@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Search, Bell, Moon, Sun, User, Settings, LogOut } from "lucide-react";
+import { Search, Bell, Moon, Sun, User, Settings, LogOut, Shield, MapPin } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 import { useAuthStore } from "@/store/authStore";
+import { REGION_LABELS } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -73,11 +74,23 @@ export function Navbar() {
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
-                  {user?.full_name || "User"}
+                  {user?.username || "User"}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {user?.email || "user@example.com"}
                 </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400">
+                    <Shield className="w-3 h-3" />
+                    {user?.role === "super_admin" ? "Super Admin" : "Sub Admin"}
+                  </span>
+                  {user?.region && (
+                    <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                      <MapPin className="w-3 h-3" />
+                      {REGION_LABELS[user.region]}
+                    </span>
+                  )}
+                </div>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2">

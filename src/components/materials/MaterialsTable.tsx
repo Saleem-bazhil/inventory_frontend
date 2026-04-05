@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Material, PaginationMeta } from "@/types";
+import { useAuthStore } from "@/store/authStore";
 
 interface MaterialsTableProps {
   data: Material[];
@@ -16,9 +17,18 @@ interface MaterialsTableProps {
   onPageChange: (page: number) => void;
 }
 
+const statusColor: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+  closed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+  taken_for_service: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+};
+
 export function MaterialsTable({
   data, loading, pagination, onSort, onEdit, onDelete, onPageChange,
 }: MaterialsTableProps) {
+  const user = useAuthStore((s) => s.user);
+  const isSuperAdmin = user?.role === "super_admin";
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -39,20 +49,21 @@ export function MaterialsTable({
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800/50">
               <TableHead>
-                <button onClick={() => onSort("part_number")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
-                  Part No <ArrowUpDown className="w-3 h-3" />
+                <button onClick={() => onSort("case_id")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
+                  Case ID <ArrowUpDown className="w-3 h-3" />
                 </button>
               </TableHead>
+              <TableHead>Customer</TableHead>
               <TableHead>Product</TableHead>
-              <TableHead>Cust Name</TableHead>
-              <TableHead>SO Number</TableHead>
-              <TableHead>Case ID</TableHead>
-              <TableHead>Serial No</TableHead>
+              <TableHead>Service</TableHead>
+              <TableHead>Part No.</TableHead>
               <TableHead>
                 <button onClick={() => onSort("qty")} className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200">
                   Qty <ArrowUpDown className="w-3 h-3" />
                 </button>
               </TableHead>
+              <TableHead>Status</TableHead>
+              {isSuperAdmin && <TableHead>Region</TableHead>}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -65,15 +76,31 @@ export function MaterialsTable({
                 transition={{ delay: i * 0.05 }}
                 className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
               >
-                <TableCell className="font-medium">{m.part_number}</TableCell>
-                <TableCell>{m.product}</TableCell>
-                <TableCell>{m.cust_name}</TableCell>
-                <TableCell>{m.so_number}</TableCell>
-                <TableCell>{m.case_id}</TableCell>
-                <TableCell>{m.serial_number}</TableCell>
+                <TableCell className="font-medium">{m.case_id}</TableCell>
+                <TableCell>
+                  <div>
+                    <p className="font-medium text-sm">{m.cust_name}</p>
+                    {m.cust_contact && <p className="text-xs text-slate-500">{m.cust_contact}</p>}
+                  </div>
+                </TableCell>
+                <TableCell>{m.product_name}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{m.service_type_display}</Badge>
+                </TableCell>
+                <TableCell>{m.part_number || "-"}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">{m.qty}</Badge>
                 </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor[m.call_status] || ""}`}>
+                    {m.call_status_display}
+                  </span>
+                </TableCell>
+                {isSuperAdmin && (
+                  <TableCell>
+                    <Badge variant="outline" className="capitalize">{m.region_display || "-"}</Badge>
+                  </TableCell>
+                )}
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <Button variant="ghost" size="icon" onClick={() => onEdit(m)} className="h-8 w-8">

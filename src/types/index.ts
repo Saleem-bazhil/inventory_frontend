@@ -1,24 +1,58 @@
+export type UserRole = "super_admin" | "sub_admin";
+export type Region = "vellore" | "salem" | "chennai" | "kanchipuram";
+export type ServiceType = "warranty" | "non_warranty" | "doc" | "amc" | "rental";
+export type CallStatus = "pending" | "closed" | "taken_for_service";
+
+export interface User {
+  id: number;
+  email: string;
+  username: string;
+  full_name?: string;
+  role: UserRole;
+  region: Region | null;
+}
+
 export interface Material {
   id: number;
+  user: number | null;
+  region: Region | null;
+  region_display: string;
+  // Customer Info
   cust_name: string;
   cust_contact: string;
-  case_id: string;
-  so_number: string;
-  warranty: boolean;
-  issue: string;
-  product: string;
-  model_name: string;
-  part_number: string;
+  cust_address: string;
+  // Service Details
+  service_type: ServiceType;
+  service_type_display: string;
+  product_name: string;
   serial_number: string;
+  case_id: string;
+  condition_received: string;
+  arrival_date: string | null;
+  delivery_date: string | null;
+  // Issue
+  issue_description: string;
+  // Part Details
+  part_number: string;
+  part_usage: string;
+  failure_code: string;
+  part_description: string;
   qty: number;
-  hp_part_in_date: string | null;
-  aging: number | null;
-  out_date: string | null;
-  collector: string;
-  in_date: string | null;
-  receiver: string;
-  used_part: boolean;
-  remarks: string;
+  ct_code: string;
+  so_req_id: string;
+  removed_part_sno: string;
+  installed_part_sno: string;
+  // Resolution & Engineer
+  resolution_summary: string;
+  engineer_name: string;
+  hp_id: string;
+  call_status: CallStatus;
+  call_status_display: string;
+  explanation: string;
+  customer_comments: string;
+  // Timestamps
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Customer {
@@ -42,12 +76,6 @@ export interface Transaction {
   date: string;
   notes: string;
   created_at: string;
-}
-
-export interface User {
-  id: number;
-  email: string;
-  username: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -92,11 +120,9 @@ export interface CategoryBreakdown {
 }
 
 export interface AuthResponse {
-  token: string;
-  user_id: number;
-  username: string;
-  email: string;
-  message: string;
+  access: string;
+  refresh: string;
+  user: User;
 }
 
 export interface MaterialQueryParams {
@@ -121,3 +147,24 @@ export interface TransactionQueryParams {
   page?: number;
   per_page?: number;
 }
+
+export const REGION_LABELS: Record<Region, string> = {
+  vellore: "Vellore",
+  salem: "Salem",
+  chennai: "Chennai",
+  kanchipuram: "Kanchipuram",
+};
+
+export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
+  warranty: "Warranty",
+  non_warranty: "Non Warranty",
+  doc: "DOC",
+  amc: "AMC",
+  rental: "Rental",
+};
+
+export const CALL_STATUS_LABELS: Record<CallStatus, string> = {
+  pending: "Pending",
+  closed: "Closed",
+  taken_for_service: "Taken for Service",
+};

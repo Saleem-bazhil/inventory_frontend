@@ -1,17 +1,20 @@
 import client from "./client";
-import type { DashboardStats, ChartData, Transaction } from "@/types";
 
-export async function getStats(): Promise<DashboardStats> {
-  const { data } = await client.get<DashboardStats>("/dashboard/stats");
-  return data;
+export interface RegionStats {
+  region: string | null;
+  total_materials: number;
+  total_qty: number;
+  pending: number;
+  closed: number;
+  taken_for_service: number;
 }
 
-export async function getCharts(): Promise<ChartData> {
-  const { data } = await client.get<ChartData>("/dashboard/charts");
-  return data;
+export interface DashboardResponse {
+  overall: RegionStats;
+  regions: RegionStats[];
 }
 
-export async function getRecentActivity(): Promise<Transaction[]> {
-  const { data } = await client.get<Transaction[]>("/dashboard/recent-activity");
+export async function getDashboardStats(): Promise<DashboardResponse> {
+  const { data } = await client.get<DashboardResponse>("/dashboard/stats/");
   return data;
 }

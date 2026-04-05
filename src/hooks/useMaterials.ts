@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Material, PaginationMeta } from "@/types";
 import { getMaterials } from "@/api/materials";
+import type { MaterialFilters } from "@/api/materials";
 
-export function useMaterials() {
+export function useMaterials(filters?: MaterialFilters) {
   const [data, setData] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +18,7 @@ export function useMaterials() {
     setLoading(true);
     setError(null);
     try {
-      const responseData = await getMaterials();
+      const responseData = await getMaterials(filters);
       setData(responseData);
       setPagination({
         total: responseData.length,
@@ -30,7 +31,7 @@ export function useMaterials() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [JSON.stringify(filters)]);
 
   useEffect(() => {
     fetch();

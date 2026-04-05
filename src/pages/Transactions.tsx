@@ -8,7 +8,9 @@ import { TransactionsTable } from "@/components/transactions/TransactionsTable";
 import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { useTransactions } from "@/hooks/useTransactions";
 import { toast } from "@/components/ui/use-toast";
-
+import { createTransaction } from "@/api/transactions";
+import { extractApiError } from "@/api/client";
+import type { TransactionFormData } from "@/lib/validations";
 
 export default function Transactions() {
   const [type, setType] = useState("all");
@@ -16,6 +18,7 @@ export default function Transactions() {
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   const { data, loading, error, pagination, refetch } = useTransactions({
     type: type !== "all" ? (type as "in" | "out") : undefined,
@@ -25,10 +28,18 @@ export default function Transactions() {
     per_page: 8,
   });
 
-  const handleSubmit = async () => {
-    toast({ title: "Transaction created successfully" });
-    setFormOpen(false);
-    refetch();
+  const handleSubmit = async (formData: TransactionFormData) => {
+    setFormLoading(true);
+    try {
+      await createTransaction(formData);
+      toast({ title: "Transaction created successfully" });
+      setFormOpen(false);
+      refetch();
+    } catch (err) {
+      toast({ title: extractApiError(err), variant: "destructive" });
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   if (error) {
@@ -81,6 +92,7 @@ export default function Transactions() {
         open={formOpen}
         onOpenChange={setFormOpen}
         onSubmit={handleSubmit}
+        loading={formLoading}
       />
     </motion.div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Customer, PaginationMeta, CustomerQueryParams } from "@/types";
-import { mockCustomers } from "@/lib/mock-data";
+import { getCustomers } from "@/api/customers";
 
 export function useCustomers(params?: CustomerQueryParams) {
   const [data, setData] = useState<Customer[]>([]);
@@ -13,33 +13,22 @@ export function useCustomers(params?: CustomerQueryParams) {
     pages: 0,
   });
 
-  const fetch = useCallback(() => {
+  const fetch = useCallback(async () => {
     setLoading(true);
     setError(null);
-    setTimeout(() => {
-      let filtered = [...mockCustomers];
-
-      if (params?.search) {
-        const q = params.search.toLowerCase();
-        filtered = filtered.filter(
-          (c) =>
-            c.name.toLowerCase().includes(q) ||
-            c.email.toLowerCase().includes(q) ||
-            c.company.toLowerCase().includes(q)
-        );
-      }
-
-      const page = params?.page || 1;
-      const perPage = params?.per_page || 8;
-      const total = filtered.length;
-      const pages = Math.ceil(total / perPage);
-      const start = (page - 1) * perPage;
-      const paged = filtered.slice(start, start + perPage);
-
-      setData(paged);
-      setPagination({ total, page, per_page: perPage, pages });
+    try {
+      const res = await getCustomers(params);
+      setData(res.items);
+      setPagination({ total: res.total, page: res.page, per_page: res.per_page, pages: res.pages });
+    } catch (err: unknown) {
+      const data = (err as { response?: { data?: unknown } }).response?.data;
+      const msg = typeof data === "object" && data !== null
+        ? ((data as Record<string, unknown>).detail as string) ?? "Failed to fetch customers"
+        : "Failed to fetch customers";
+      setError(msg);
+    } finally {
       setLoading(false);
-    }, 300);
+    }
   }, [JSON.stringify(params)]);
 
   useEffect(() => {

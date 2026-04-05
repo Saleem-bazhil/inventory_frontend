@@ -1,33 +1,34 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Package, BarChart3, AlertTriangle, ArrowUpDown, Plus, AlertCircle } from "lucide-react";
+import { Package, Clock, CheckCircle2, Wrench, Plus, AlertCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { StockMovementChart } from "@/components/dashboard/StockMovementChart";
-import { TopMaterialsChart } from "@/components/dashboard/TopMaterialsChart";
-import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { MaterialFormDialog } from "@/components/materials/MaterialFormDialog";
-import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { useDashboard } from "@/hooks/useDashboard";
-import { formatNumber } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
+import { REGION_LABELS } from "@/types";
+import type { Region } from "@/types";
 import { toast } from "@/components/ui/use-toast";
-
+import { createMaterial } from "@/api/materials";
 
 export default function Dashboard() {
-  const { stats, charts, recentActivity, loading, error, refetch } = useDashboard();
+  const { data, loading, error, refetch } = useDashboard();
+  const user = useAuthStore((s) => s.user);
+  const isSuperAdmin = user?.role === "super_admin";
   const [materialDialogOpen, setMaterialDialogOpen] = useState(false);
-  const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
 
-  const handleAddMaterial = async () => {
-    toast({ title: "Material created successfully" });
-    setMaterialDialogOpen(false);
-  };
-
-  const handleAddTransaction = async () => {
-    toast({ title: "Transaction created successfully" });
-    setTransactionDialogOpen(false);
+  const handleAddMaterial = async (formData: any) => {
+    try {
+      await createMaterial(formData);
+      toast({ title: "Material created successfully" });
+      setMaterialDialogOpen(false);
+      refetch();
+    } catch (err: any) {
+      toast({ title: "Error creating material", description: err.response?.data?.detail || "Unexpected error", variant: "destructive" });
+    }
   };
 
   if (error) {
@@ -43,6 +44,9 @@ export default function Dashboard() {
     );
   }
 
+  const overall = data?.overall;
+  const regions = data?.regions || [];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -50,73 +54,140 @@ export default function Dashboard() {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome back. Here's what's happening today.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            {isSuperAdmin
+              ? "Overview of all regions"
+              : user?.region
+                ? `Region: ${REGION_LABELS[user.region]}`
+                : "Welcome back"}
+          </p>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <Button variant="outline" onClick={() => setMaterialDialogOpen(true)} className="gap-2 flex-1 sm:flex-initial text-xs sm:text-sm">
-            <Plus className="w-4 h-4" />
-            <span className="hidden xs:inline">Add</span> Material
-          </Button>
-          <Button onClick={() => setTransactionDialogOpen(true)} className="gap-2 flex-1 sm:flex-initial text-xs sm:text-sm">
-            <Plus className="w-4 h-4" />
-            <span className="hidden xs:inline">New</span> Transaction
-          </Button>
-        </div>
+        <Button onClick={() => setMaterialDialogOpen(true)} className="gap-2 sm:w-auto w-full">
+          <Plus className="w-4 h-4" /> Add Material
+        </Button>
       </div>
 
+      {/* Overall KPIs */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
         </div>
-      ) : stats ? (
+      ) : overall ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPICard title="Total Materials" value={stats.total_materials} icon={Package} change="+3 this month" color="blue" index={0} />
-          <KPICard title="Total Stock" value={formatNumber(stats.total_stock)} icon={BarChart3} change="+12% vs last month" color="green" index={1} />
-          <KPICard title="Low Stock Alerts" value={stats.low_stock_count} icon={AlertTriangle} change={`${stats.low_stock_count} items need attention`} color="amber" index={2} />
-          <KPICard title="Transactions Today" value={stats.today_transactions} icon={ArrowUpDown} change="2 incoming, 1 outgoing" color="purple" index={3} />
+          <KPICard
+            title={isSuperAdmin ? "Total Records (All Regions)" : "Total Records"}
+            value={overall.total_materials}
+            icon={Package}
+            change={`${overall.total_qty} total qty`}
+            color="blue"
+            index={0}
+          />
+          <KPICard
+            title="Pending"
+            value={overall.pending}
+            icon={Clock}
+            change="Awaiting action"
+            color="amber"
+            index={1}
+          />
+          <KPICard
+            title="Closed"
+            value={overall.closed}
+            icon={CheckCircle2}
+            change="Completed"
+            color="green"
+            index={2}
+          />
+          <KPICard
+            title="Taken for Service"
+            value={overall.taken_for_service}
+            icon={Wrench}
+            change="In progress"
+            color="purple"
+            index={3}
+          />
         </div>
       ) : null}
 
-      {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-[380px]" />
-          <Skeleton className="h-[380px]" />
+      {/* Super Admin: Per-region breakdown */}
+      {isSuperAdmin && !loading && regions.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Region Breakdown</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {regions.map((r, i) => (
+              <motion.div
+                key={r.region}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.1 }}
+              >
+                <Card className="p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MapPin className="w-4 h-4 text-indigo-500" />
+                    <span className="font-semibold text-slate-800 dark:text-slate-100 capitalize">
+                      {REGION_LABELS[r.region as Region] || r.region}
+                    </span>
+                  </div>
+                  <p className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-3">{r.total_materials}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" /> {r.pending} pending
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      <CheckCircle2 className="w-3 h-3 mr-1" /> {r.closed} closed
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      <Wrench className="w-3 h-3 mr-1" /> {r.taken_for_service} service
+                    </Badge>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      ) : charts ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <StockMovementChart data={charts.stock_movement} />
-          <TopMaterialsChart data={charts.top_materials} />
-        </div>
-      ) : null}
+      )}
 
-      {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48 lg:col-span-2" />
-        </div>
-      ) : (
+      {/* Quick Actions */}
+      {!loading && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setMaterialDialogOpen(true)}>
                 <Package className="w-4 h-4" />
-                Add New Material
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setTransactionDialogOpen(true)}>
-                <ArrowUpDown className="w-4 h-4" />
-                Record Transaction
+                Add New Service Record
               </Button>
             </div>
           </Card>
-          <div className="lg:col-span-2">
-            <RecentActivity data={recentActivity} />
-          </div>
+          <Card className="p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Status Summary</h3>
+            {overall ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">Total Quantity</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">{overall.total_qty}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">Pending Cases</span>
+                  <span className="font-semibold text-amber-600">{overall.pending}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">Closed Cases</span>
+                  <span className="font-semibold text-green-600">{overall.closed}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">In Service</span>
+                  <span className="font-semibold text-purple-600">{overall.taken_for_service}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">No data yet</p>
+            )}
+          </Card>
         </div>
       )}
 
@@ -124,11 +195,6 @@ export default function Dashboard() {
         open={materialDialogOpen}
         onOpenChange={setMaterialDialogOpen}
         onSubmit={handleAddMaterial}
-      />
-      <TransactionFormDialog
-        open={transactionDialogOpen}
-        onOpenChange={setTransactionDialogOpen}
-        onSubmit={handleAddTransaction}
       />
     </motion.div>
   );

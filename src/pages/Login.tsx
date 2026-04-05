@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -34,9 +34,9 @@ export default function Login() {
     setError("");
     try {
       const res = await authApi.login(data.username, data.password);
-      storeLogin(res.token, { id: res.user_id, email: res.email, username: res.username });
+      storeLogin(res.access, res.refresh, res.user);
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { error?: string, detail?: string } } };
+      const axiosErr = err as { response?: { data?: { error?: string; detail?: string } } };
       setError(axiosErr.response?.data?.error || axiosErr.response?.data?.detail || "Invalid username or password");
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ export default function Login() {
               <Package className="w-6 h-6" />
             </div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Sign in to your account</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Welcome back to InventoryPro</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Welcome back to RenderWays Inventory</p>
           </div>
 
           {error && (
@@ -81,13 +81,6 @@ export default function Login() {
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
-
-          <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-              Register
-            </Link>
-          </p>
         </Card>
       </motion.div>
     </div>

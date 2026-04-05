@@ -10,14 +10,17 @@ import { DeleteConfirmDialog } from "@/components/materials/DeleteConfirmDialog"
 import { useCustomers } from "@/hooks/useCustomers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "@/components/ui/use-toast";
+import { createCustomer, updateCustomer, deleteCustomer } from "@/api/customers";
+import { extractApiError } from "@/api/client";
 import type { Customer } from "@/types";
-
+import type { CustomerFormData } from "@/lib/validations";
 
 export default function Customers() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const debouncedSearch = useDebounce(search);
@@ -27,18 +30,37 @@ export default function Customers() {
     per_page: 8,
   });
 
-  const handleSubmit = async () => {
-    toast({ title: selectedCustomer ? "Customer updated successfully" : "Customer created successfully" });
-    setFormOpen(false);
-    setSelectedCustomer(null);
-    refetch();
+  const handleSubmit = async (formData: CustomerFormData) => {
+    setFormLoading(true);
+    try {
+      if (selectedCustomer) {
+        await updateCustomer(selectedCustomer.id, formData);
+        toast({ title: "Customer updated successfully" });
+      } else {
+        await createCustomer(formData);
+        toast({ title: "Customer created successfully" });
+      }
+      setFormOpen(false);
+      setSelectedCustomer(null);
+      refetch();
+    } catch (err) {
+      toast({ title: extractApiError(err), variant: "destructive" });
+    } finally {
+      setFormLoading(false);
+    }
   };
 
-  const handleDelete = () => {
-    toast({ title: "Customer deleted successfully" });
-    setDeleteOpen(false);
-    setSelectedCustomer(null);
-    refetch();
+  const handleDelete = async () => {
+    if (!selectedCustomer) return;
+    try {
+      await deleteCustomer(selectedCustomer.id);
+      toast({ title: "Customer deleted successfully" });
+      setDeleteOpen(false);
+      setSelectedCustomer(null);
+      refetch();
+    } catch (err) {
+      toast({ title: extractApiError(err), variant: "destructive" });
+    }
   };
 
   if (error) {
@@ -90,6 +112,7 @@ export default function Customers() {
         onOpenChange={(open) => { setFormOpen(open); if (!open) setSelectedCustomer(null); }}
         customer={selectedCustomer}
         onSubmit={handleSubmit}
+        loading={formLoading}
       />
       <DeleteConfirmDialog
         open={deleteOpen}

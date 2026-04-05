@@ -5,10 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { transactionSchema, type TransactionFormData } from "@/lib/validations";
-import { mockMaterials, mockCustomers } from "@/lib/mock-data";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Package, User, Calendar, FileText, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 interface TransactionFormDialogProps {
@@ -50,15 +48,15 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
-          {/* Type Toggle Style Select */}
+          {/* Type Toggle */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
             <button
               type="button"
               onClick={() => setValue("type", "in")}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
-                currentType === "in" 
-                ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm" 
-                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                currentType === "in"
+                  ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               <ArrowUpRight className="w-4 h-4" /> Inflow
@@ -67,9 +65,9 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
               type="button"
               onClick={() => setValue("type", "out")}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
-                currentType === "out" 
-                ? "bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm" 
-                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                currentType === "out"
+                  ? "bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               <ArrowDownLeft className="w-4 h-4" /> Outflow
@@ -77,55 +75,36 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
           </div>
 
           <div className="space-y-4">
-            {/* Material Selection */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <Package className="w-3 h-3" /> Material
+                <Package className="w-3 h-3" /> Material ID
               </Label>
-              <Select value={watch("material_id")} onValueChange={(v) => setValue("material_id", v)}>
-                <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11">
-                  <SelectValue placeholder="Select material" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  {mockMaterials.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      <div className="flex justify-between items-center w-full gap-8">
-                        <span>{m.name}</span>
-                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">
-                          Stock: {m.stock} {m.unit}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                {...register("material_id")}
+                placeholder="Enter material ID"
+                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11"
+              />
               {errors.material_id && <p className="text-[11px] text-red-500 font-medium pl-1">{errors.material_id.message}</p>}
             </div>
 
-            {/* Customer Selection */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <User className="w-3 h-3" /> Customer / Party
+                <User className="w-3 h-3" /> Customer / Party ID
               </Label>
-              <Select value={watch("customer_id")} onValueChange={(v) => setValue("customer_id", v)}>
-                <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11">
-                  <SelectValue placeholder="Select customer" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  {mockCustomers.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                {...register("customer_id")}
+                placeholder="Enter customer ID"
+                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11"
+              />
               {errors.customer_id && <p className="text-[11px] text-red-500 font-medium pl-1">{errors.customer_id.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quantity</Label>
-                <Input 
-                  type="number" 
-                  {...register("quantity")} 
+                <Input
+                  type="number"
+                  {...register("quantity")}
                   className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11"
                 />
                 {errors.quantity && <p className="text-[11px] text-red-500 font-medium pl-1">{errors.quantity.message}</p>}
@@ -134,9 +113,9 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
                 <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                   <Calendar className="w-3 h-3" /> Date
                 </Label>
-                <Input 
-                  type="date" 
-                  {...register("date")} 
+                <Input
+                  type="date"
+                  {...register("date")}
                   className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-11"
                 />
               </div>
@@ -156,16 +135,16 @@ export function TransactionFormDialog({ open, onOpenChange, onSubmit, loading }:
           </div>
 
           <DialogFooter className="pt-2 gap-3">
-            <Button 
-              type="button" 
-              variant="ghost" 
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => onOpenChange(false)}
               className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="rounded-xl px-8 bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
             >

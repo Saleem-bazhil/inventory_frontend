@@ -10,8 +10,10 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
 
 const navLinks = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -22,8 +24,16 @@ const navLinks = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
+const superAdminLinks = [
+  { to: "/users", label: "User Management", icon: ShieldCheck },
+];
+
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const isSuperAdmin = user?.role === "super_admin";
+
+  const links = isSuperAdmin ? [...navLinks, ...superAdminLinks] : navLinks;
 
   return (
     <motion.aside
@@ -43,14 +53,14 @@ export function Sidebar() {
             animate={{ opacity: 1 }}
             className="text-lg font-bold text-slate-800 dark:text-white whitespace-nowrap"
           >
-            InventoryPro
+            RenderWays
           </motion.span>
         )}
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {navLinks.map((link) => (
+        {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}

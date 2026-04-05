@@ -1,25 +1,37 @@
 import { z } from "zod/v4";
 
 export const materialSchema = z.object({
+  // Customer Info
   cust_name: z.string().min(1, "Customer Name is required"),
-  cust_contact: z.string().min(1, "Customer Contact is required"),
+  cust_contact: z.string().optional().default(""),
+  cust_address: z.string().optional().default(""),
+  // Service Details
+  service_type: z.enum(["warranty", "non_warranty", "doc", "amc", "rental"]).default("warranty"),
+  product_name: z.string().min(1, "Product Name is required"),
+  serial_number: z.string().optional().default(""),
   case_id: z.string().min(1, "Case ID is required"),
-  so_number: z.string().min(1, "SO Number is required"),
-  warranty: z.boolean().optional(),
-  issue: z.string().min(1, "Issue is required"),
-  product: z.string().min(1, "Product is required"),
-  model_name: z.string().min(1, "Model Name is required"),
-  part_number: z.string().min(1, "Part Number is required"),
-  serial_number: z.string().min(1, "Serial Number is required"),
-  qty: z.coerce.number().min(1, "Quantity must be at least 1"),
-  hp_part_in_date: z.string().nullable().optional(),
-  aging: z.coerce.number().nullable().optional(),
-  out_date: z.string().nullable().optional(),
-  collector: z.string().optional(),
-  in_date: z.string().nullable().optional(),
-  receiver: z.string().optional(),
-  used_part: z.boolean().optional(),
-  remarks: z.string().optional(),
+  condition_received: z.string().optional().default(""),
+  arrival_date: z.string().nullable().optional(),
+  delivery_date: z.string().nullable().optional(),
+  // Issue
+  issue_description: z.string().optional().default(""),
+  // Part Details
+  part_number: z.string().optional().default(""),
+  part_usage: z.string().optional().default(""),
+  failure_code: z.string().optional().default(""),
+  part_description: z.string().optional().default(""),
+  qty: z.coerce.number().min(1, "Quantity must be at least 1").default(1),
+  ct_code: z.string().optional().default(""),
+  so_req_id: z.string().optional().default(""),
+  removed_part_sno: z.string().optional().default(""),
+  installed_part_sno: z.string().optional().default(""),
+  // Resolution & Engineer
+  resolution_summary: z.string().optional().default(""),
+  engineer_name: z.string().optional().default(""),
+  hp_id: z.string().optional().default(""),
+  call_status: z.enum(["pending", "closed", "taken_for_service"]).default("pending"),
+  explanation: z.string().optional().default(""),
+  customer_comments: z.string().optional().default(""),
 });
 
 export type MaterialFormData = z.infer<typeof materialSchema>;
