@@ -108,7 +108,7 @@ export default function Materials() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Materials</h1>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">CSO Entry</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">
           {user?.role === "super_admin"
             ? "Viewing all regions"

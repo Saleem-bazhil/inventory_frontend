@@ -5,7 +5,13 @@ import {
   LayoutDashboard,
   Package,
   Users,
-  ArrowUpDown,
+  FileText,
+  FileQuestion,
+  Wrench,
+  Receipt,
+  Warehouse,
+  Layers,
+  ShoppingCart,
   BarChart3,
   Settings,
   ChevronLeft,
@@ -17,10 +23,15 @@ import { useAuthStore } from "@/store/authStore";
 
 const navLinks = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/materials", label: "Materials", icon: Package },
   { to: "/customers", label: "Customers", icon: Users },
-  { to: "/transactions", label: "Transactions", icon: ArrowUpDown },
-  { to: "/reports", label: "Reports", icon: BarChart3 },
+  { to: "/cso-entry", label: "CSO Entry", icon: FileText },
+  { to: "/quotation", label: "Quotation", icon: FileQuestion },
+  { to: "/part-request", label: "Part Request", icon: Wrench },
+  { to: "/invoice", label: "Invoice", icon: Receipt },
+  { to: "/stock", label: "Stock", icon: Warehouse },
+  { to: "/buffer", label: "Buffer", icon: Layers },
+  { to: "/purchase-order", label: "Purchase Order", icon: ShoppingCart },
+  { to: "/reports", label: "Report", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
