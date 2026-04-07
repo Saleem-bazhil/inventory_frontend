@@ -14,6 +14,7 @@ import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
 import Login from "@/pages/Login";
 import UserManagement from "@/pages/UserManagement";
+import TicketDetail from "@/pages/TicketDetail";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/cso-entry" element={<Materials />} />
+          <Route path="/tickets/:id" element={<TicketDetail />} />
           <Route path="/quotation" element={<Quotation />} />
           <Route path="/part-request" element={<PartRequest />} />
           <Route path="/invoice" element={<Invoice />} />

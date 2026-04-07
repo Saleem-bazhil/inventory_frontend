@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { getDashboardStats } from "@/api/dashboard";
-import type { DashboardResponse } from "@/api/dashboard";
+import type { EngineerPerformance } from "@/types";
+import { getEngineerPerformance } from "@/api/dashboard";
 
-export function useDashboard(region?: string) {
-  const [data, setData] = useState<DashboardResponse | null>(null);
+export function useEngineerPerformance() {
+  const [data, setData] = useState<EngineerPerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,14 +11,14 @@ export function useDashboard(region?: string) {
     setLoading(true);
     setError(null);
     try {
-      const res = await getDashboardStats(region);
+      const res = await getEngineerPerformance();
       setData(res);
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Failed to fetch dashboard data");
+      setError(err.response?.data?.detail || "Failed to fetch engineer performance");
     } finally {
       setLoading(false);
     }
-  }, [region]);
+  }, []);
 
   useEffect(() => { fetch(); }, [fetch]);
 
